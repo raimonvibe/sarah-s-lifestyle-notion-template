@@ -83,11 +83,11 @@ There was some **confusion about Notion’s Page ID format**. Here’s the **cor
 2️⃣ Copy the **URL** from the address bar.  
    Example:  
    ```
-   https://www.notion.so/yourworkspace/Page-Name-1970236383b680ee877de0b6ee27ythu
+   https://www.notion.so/yourworkspace/Page-Name-1856236383b680ee877de0b6ee27ythu
    ```  
 3️⃣ The **Page ID** is the last part:  
    ```
-   1970236383b680ee877de0b6ee27ythu
+   1856236383b680ee877de0b6ee27ythu
    ```  
 
 ⚠️ **Important:** You don’t need to manually add dashes! When copied from the browser, the format is already correct for use in API requests.  
