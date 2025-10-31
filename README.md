@@ -1,4 +1,4 @@
-![Sarah's Notion Template Dashboard](assets/notion_template_dashboard.png)
+![Sarah's Notion Template Dashboard](assets/sarah.jpeg)
 
 # 🌌 Sarah's Notion Template Generator
 
