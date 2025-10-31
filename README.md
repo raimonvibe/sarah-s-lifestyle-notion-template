@@ -1,18 +1,17 @@
-# 🌌 Automating Notion Templates with Python: A Developer’s Guide  
+![Sarah's Notion Template Dashboard](assets/notion_template_dashboard.png)
 
-A workspace should be more than just a collection of notes—it should evolve with you.  
-If you’ve ever wanted to create a **smart, adaptable Notion template** that does more than just hold text, this guide is for you.  
+# 🌌 Sarah's Notion Template Generator
 
-I’ll walk you through how to use the **Notion API** to generate fully functional, customizable templates with Python.  
-You'll also learn how we **overcame troubleshooting issues** like permissions, missing integrations, and formatting problems.  
+A comprehensive life design workspace template that helps you organize and track all aspects of your life.  
 
-By the end, you’ll have a **fully automated Notion template** that dynamically creates sections for:  
-✅ **Task Management**  
-📔 **Journaling with Prompts**  
-📆 **Habit Tracking**  
-🎯 **Goal Setting**  
-📚 **Knowledge Hub**  
-🌺 **Mood & Motivation Check-Ins**  
+This project uses the **Notion API** to generate a fully functional, customizable template with Python.  
+
+The template includes:  
+✅ **The Ultimate Habit Tracker** - Track daily and weekly habits  
+📆 **The Ultimate Goal Tracker** - Set and track long-term and short-term goals  
+📔 **My Weekly Review** - Weekly reflection and planning  
+📚 **Bookshelf Tracker** - Organize your reading list and book insights  
+🎓 **Student Tracker** - Manage courses, assignments, and academic progress  
 
 ---
 
@@ -68,10 +67,16 @@ We had to manually select the API **from a dropdown menu in Notion** before it c
 Run this in your terminal:  
 
 ```bash
+pip install -r requirements.txt
+```  
+
+Or install manually:
+
+```bash
 pip install requests
 ```  
 
-This installs the `requests` library, which we’ll use to **send API requests**.  
+This installs the `requests` library, which we'll use to **send API requests**.  
 
 ---  
 
@@ -119,47 +124,72 @@ This is the **foundation** of every API request.
 
 ---  
 
-## **4️⃣ Structuring the Template**  
+## **4️⃣ Understanding the Template Structure**  
 
-Let’s create a **structured workspace** that includes:  
+Sarah's Notion Template creates a **comprehensive life design workspace** with:  
 
-✅ **A Dynamic Task Manager**  
-📔 **A Daily Journal with Prompts**  
-📆 **A Habit Tracker**  
-🎯 **A Weekly Goal Tracker**  
-📚 **A Knowledge Hub**  
-🌺 **A Mood & Motivation Tracker**  
+✅ **The Ultimate Habit Tracker** - Daily and weekly habit tracking  
+🎯 **The Ultimate Goal Tracker** - Long-term, short-term, and monthly goals  
+📔 **My Weekly Review** - Weekly reflection and planning  
+📚 **Bookshelf Tracker** - Reading list and book insights  
+🎓 **Student Tracker** - Academic course management  
 
-```python
-payload = {
-    "parent": {"page_id": PARENT_PAGE_ID},
-    "properties": {
-        "title": {
-            "title": [{"text": {"content": "🌌 Versatile Calm & Intelligent Workspace"}}]
-        }
-    },
-    "children": [
-        {"object": "block", "type": "heading_1", "heading_1": {"rich_text": [{"text": {"content": "🛠️ Task Manager"}}]}},
-        {"object": "block", "type": "toggle", "toggle": {"rich_text": [{"text": {"content": "🎯 View or hide tasks"}}], "children": [
-            {"object": "block", "type": "to_do", "to_do": {"rich_text": [{"text": {"content": "🌿 Plan my day"}}]}},
-            {"object": "block", "type": "to_do", "to_do": {"rich_text": [{"text": {"content": "🔍 Research a topic"}}]}},
-            {"object": "block", "type": "to_do", "to_do": {"rich_text": [{"text": {"content": "✍️ Journal entry"}}]}},
-        ]}},
-    ]
-}
+The template is generated using the Notion API. For a complete working implementation, see the `notion_template_generator.py` script which includes all the necessary API calls and structure.  
 
-response = requests.post(url, json=payload, headers=headers)
+---
 
-if response.status_code == 200:
-    print("🌌 Notion template created successfully! 🎉")
-else:
-    print(f"Failed to create template: {response.text}")
-```  
+## **5️⃣ Running the Template Generator**
 
----  
+Now that you have everything set up, you can run the complete template generator!
+
+### **Quick Start**
+
+1. **Set up environment variables (optional but recommended):**
+   ```bash
+   export NOTION_API_KEY="your_internal_integration_secret"
+   export NOTION_PARENT_PAGE_ID="your_page_id"
+   ```
+
+   Or create a `.env` file:
+   ```
+   NOTION_API_KEY=your_internal_integration_secret
+   NOTION_PARENT_PAGE_ID=your_page_id
+   ```
+
+2. **Run the script:**
+   ```bash
+   python notion_template_generator.py
+   ```
+
+   If you haven't set environment variables, the script will prompt you for your API key and page ID.
+
+3. **Success!** 🎉 Your Notion workspace template will be created automatically.
+
+### **What Gets Created**
+
+The script generates Sarah's complete Life Design Dashboard with:
+
+- ✅ **The Ultimate Habit Tracker** - Daily and weekly habit tracking with checkboxes
+- 🎯 **The Ultimate Goal Tracker** - Long-term, short-term, and monthly goal setting
+- 📔 **My Weekly Review** - Weekly reflection prompts and planning section
+- 📚 **Bookshelf Tracker** - Currently reading, want to read, and completed books
+- 🎓 **Student Tracker** - Course management, assignments, deadlines, and grade tracking
+
+### **Customization**
+
+You can customize the template by editing the `build_complete_template()` method in `notion_template_generator.py`. The script includes helper methods for creating different block types:
+
+- `create_heading()` - Headings of different levels
+- `create_todo()` - To-do items
+- `create_toggle()` - Collapsible toggle blocks
+- `create_paragraph()` - Text paragraphs
+- `create_bulleted_list()` - Bullet lists
+- `create_dividing_line()` - Visual dividers
+
+---
 
 ## **🏆 Final Thoughts**  
 
-By coding Notion templates, you’re **not just creating pages**—you’re **building a system that grows with you**.  
+By coding Notion templates, you're **not just creating pages**—you're **building a system that grows with you**.  
 
-Now, it’s your turn. 🚀 What kind of **automated Notion setup** will you build?  
+Now, it's your turn. 🚀 What kind of **automated Notion setup** will you build?
