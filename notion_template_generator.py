@@ -13,7 +13,7 @@ This script creates a comprehensive life design workspace with:
 
 import requests
 import os
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Tuple, Optional
 
 
 class NotionTemplateGenerator:
@@ -36,16 +36,16 @@ class NotionTemplateGenerator:
             "Notion-Version": "2022-06-28"
         }
     
-    def create_page(self, title: str, children: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def create_page(self, title: str, children: List[Dict[str, Any]] = None) -> Tuple[Optional[Dict[str, Any]], requests.Response]:
         """
-        Create a new Notion page with specified title and children blocks.
+        Create a new Notion page with specified title and optional children blocks.
         
         Args:
             title: The title of the page
-            children: List of block objects to include in the page
+            children: List of block objects to include in the page (optional, max 100)
             
         Returns:
-            API response as dictionary
+            Tuple of (response data as dict or None, response object)
         """
         url = f"{self.base_url}/pages"
         payload = {
@@ -54,12 +54,63 @@ class NotionTemplateGenerator:
                 "title": {
                     "title": [{"text": {"content": title}}]
                 }
-            },
-            "children": children
+            }
         }
         
+        # Only add children if provided and limit to 100 blocks
+        if children:
+            payload["children"] = children[:100]
+        
         response = requests.post(url, json=payload, headers=self.headers)
-        return response.json() if response.status_code == 200 else response
+        if response.status_code == 200:
+            return response.json(), response
+        else:
+            return None, response
+    
+    def append_blocks(self, page_id: str, children: List[Dict[str, Any]]) -> Tuple[Optional[Dict[str, Any]], requests.Response]:
+        """
+        Append blocks to an existing page (for adding more than 100 blocks).
+        
+        Args:
+            page_id: The ID of the page to append blocks to
+            children: List of block objects to append (max 100 per call)
+            
+        Returns:
+            Tuple of (response data as dict or None, response object)
+        """
+        url = f"{self.base_url}/blocks/{page_id}/children"
+        payload = {"children": children[:100]}
+        
+        response = requests.patch(url, json=payload, headers=self.headers)
+        if response.status_code == 200:
+            return response.json(), response
+        else:
+            return None, response
+    
+    def create_link_to_page(self, page_id: str, text: str) -> Dict[str, Any]:
+        """Create a link block that links to another Notion page."""
+        return {
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [{
+                    "type": "mention",
+                    "mention": {
+                        "type": "page",
+                        "page": {"id": page_id}
+                    },
+                    "annotations": {
+                        "bold": False,
+                        "italic": False,
+                        "strikethrough": False,
+                        "underline": False,
+                        "code": False,
+                        "color": "default"
+                    },
+                    "plain_text": text
+                }]
+            }
+        }
     
     def create_heading(self, level: int, content: str) -> Dict[str, Any]:
         """Create a heading block."""
@@ -251,7 +302,7 @@ class NotionTemplateGenerator:
         
         children.append(self.create_paragraph(""))
         children.append(self.create_paragraph("Key events & deadlines:"))
-        children.append(self.create_bulleted_list([
+        children.extend(self.create_bulleted_list([
             "[Add important dates and events]"
         ]))
         
@@ -355,30 +406,65 @@ class NotionTemplateGenerator:
     def generate_template(self) -> bool:
         """
         Generate the complete workspace template.
+        Splits into chunks of 100 blocks due to Notion API limitations.
         
         Returns:
             True if successful, False otherwise
         """
         try:
-            children = self.build_complete_template()
-            response = self.create_page(
+            all_children = self.build_complete_template()
+            print(f"📊 Total blocks to create: {len(all_children)}")
+            
+            # Create the main page with first 100 blocks
+            first_chunk = all_children[:100]
+            response_data, response = self.create_page(
                 "Sarah's Life Design Dashboard",
-                children
+                first_chunk
             )
             
-            if isinstance(response, dict) and response.get("object") == "page":
-                print("✨ Sarah's Notion Template created successfully! 🎉")
-                print(f"Page ID: {response.get('id', 'N/A')}")
-                print(f"Page URL: {response.get('url', 'N/A')}")
-                return True
-            else:
+            if not response_data or response.status_code != 200:
                 print(f"❌ Failed to create template:")
-                print(f"Status: {response.get('status', 'Unknown')}")
-                print(f"Error: {response.get('message', response)}")
+                print(f"Status Code: {response.status_code}")
+                try:
+                    error_data = response.json()
+                    print(f"Error: {error_data.get('message', error_data)}")
+                except:
+                    print(f"Error: {response.text}")
                 return False
+            
+            page_id = response_data.get('id')
+            print(f"✅ Main page created (blocks 1-100)")
+            
+            # Append remaining blocks in chunks of 100
+            remaining_blocks = all_children[100:]
+            if remaining_blocks:
+                print(f"📝 Appending remaining {len(remaining_blocks)} blocks...")
+                
+                # Split into chunks of 100
+                chunk_size = 100
+                for i in range(0, len(remaining_blocks), chunk_size):
+                    chunk = remaining_blocks[i:i + chunk_size]
+                    append_data, append_response = self.append_blocks(page_id, chunk)
+                    
+                    if not append_data or append_response.status_code != 200:
+                        print(f"⚠️ Warning: Failed to append blocks {i+101}-{min(i+200, len(all_children))}")
+                        try:
+                            error_data = append_response.json()
+                            print(f"Error: {error_data.get('message', error_data)}")
+                        except:
+                            print(f"Error: {append_response.text}")
+                    else:
+                        print(f"✅ Appended blocks {i+101}-{min(i+chunk_size, len(all_children))}")
+            
+            print("✨ Sarah's Notion Template created successfully! 🎉")
+            print(f"Page ID: {page_id}")
+            print(f"Page URL: {response_data.get('url', 'N/A')}")
+            return True
                 
         except Exception as e:
             print(f"❌ An error occurred: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return False
 
 
@@ -409,4 +495,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
 
