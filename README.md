@@ -64,19 +64,32 @@ We had to manually select the API **from a dropdown menu in Notion** before it c
 - This **grants API permission** to modify that page.  
 
 ### **Step 5: Install Dependencies**  
-Run this in your terminal:  
+
+It's recommended to use a virtual environment to avoid conflicts with system packages. Run this in your terminal:  
 
 ```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+# On Linux/Mac:
+source venv/bin/activate
+# On Windows:
+# venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```  
 
-Or install manually:
+Or if you prefer to install manually (with a virtual environment activated):
 
 ```bash
 pip install requests
 ```  
 
-This installs the `requests` library, which we'll use to **send API requests**.  
+This installs the `requests` library, which we'll use to **send API requests**.
+
+**Note:** On newer Linux systems, you may encounter an "externally-managed-environment" error. Using a virtual environment (as shown above) is the recommended solution.  
 
 ---  
 
